@@ -1,93 +1,128 @@
-# TradeVision — Real-Time Market Analyzer (PWA)
+# 📈 TradeVision — Real-Time Market Analyzer (PWA)
 
-Platform analisis trading real-time untuk **Emas (IDR/gram)**, **Kurs USD/IDR**, dan **XAU/USD**. Candlestick chart interaktif ala TradingView, 13 indikator teknikal, dan **AI prediction engine built-in** (no API key needed).
+**TradeVision** adalah aplikasi Progressive Web App (PWA) berbasis Next.js untuk analisis pasar finansial secara *real-time*. Berfokus pada komoditas Emas (IDR & XAU/USD) dan Kurs USD/IDR, platform ini menyajikan visualisasi chart interaktif dengan 13 indikator teknikal serta **Rule-based AI Engine** internal tanpa ketergantungan API pihak ketiga.
 
-## Fitur
+---
 
-- Candlestick chart interaktif (lightweight-charts v5 by TradingView)
-- Overlay: MA5, MA20, EMA12, EMA26, Bollinger Bands
-- Volume histogram + Volume MA10
-- Pattern detection otomatis (Hammer, Engulfing, Doji, Three Soldiers/Crows)
-- AI Prediction engine — 13 indikator dengan weighted scoring adaptif
-- Support & Resistance otomatis
-- 3 market sekaligus: Emas IDR, USD/IDR, XAU/USD
-- Real-time polling 5 detik
-- PWA: installable, offline-ready, auto-update
-- Dark theme profesional
-- Responsive (desktop & mobile)
+## 📸 Fitur Utama
 
-## AI Prediction
+* **📊 Chart Interaktif TradingView**: Menggunakan `lightweight-charts v5` dengan dukungan interaksi mulus di desktop & mobile.
+* **🧠 Built-in Rule-Based AI Engine**: Analisis teknikal otomatis berbasis logika skoring tanpa memerlukan *API key* external.
+* **⚡ Real-Time Polling & Caching**: Data diperbarui secara berkala setiap 5 detik dengan proteksi rate-limit.
+* **🔍 Deteksi Pola & Indikator Lengkap**: Otomatisasi pembacaan pola candlestick dasar serta level *Support & Resistance*.
+* **📱 PWA Support**: Dapat diinstal langsung di Android, iOS, maupun Desktop, serta mendukung fitur *offline-ready*.
+* **🎨 Dark Mode Optimized**: Tampilan visual profesional dengan kontras tinggi untuk kenyamanan analisis mata.
 
-AI engine custom (no API key, no external service). Pakai pendekatan:
+---
 
-1. **13 indikator teknikal** dihitung real-time: SMA Cross, EMA Cross, RSI, MACD, Bollinger Position, Stochastic, Momentum, Volume Ratio, Williams %R, CCI, OBV Trend, Pattern, Support/Resistance
-2. **Bobot adaptif** berdasarkan ADX:
-   - ADX > 30 (tren kuat): percaya MA, MACD, EMA
-   - ADX < 20 (sideways): percaya RSI, Stoch, BB
-   - ADX sedang: bobot balanced
-3. **Multi-timeframe confirmation**: cek tren 5-menit vs 1-menit
-4. **Agreement ratio**: indikator konvergen → confidence naik
-5. **Output**: direction (NAIK/TURUN/NETRAL), signal (BELI/JUAL/TUNGGU), confidence %, score, 13 faktor detail
+## 🤖 Logika & Arsitektur AI Prediction Engine
 
-## Data Source
+Engine AI pada TradeVision beroperasi secara lokal berbasis algoritma statistik dan indikator teknikal murni (*Zero-API Cost*).
 
-- **XAU/USD** & **USD/IDR historical**: Yahoo Finance (`query1.finance.yahoo.com`)
-- **Kurs USD/IDR real-time**: currency-api Fawaz Ahmed (`cdn.jsdelivr.net`)
-- Cache 30 detik untuk menghindari rate-limit
-- Fallback ke simulasi kalau fetch gagal
-
-## Deploy ke GitHub + Vercel
-
-### 1. Push ke GitHub
-
-```bash
-git init
-git add .
-git commit -m "Initial commit: TradeVision PWA"
-git branch -M main
-git remote add origin https://github.com/USERNAME/REPO.git
-git push -u origin main
+```text
+   ┌───────────────────────┐
+   │ 13 Indikator Teknikal │
+   └───────────┬───────────┘
+               │
+               ▼
+ ┌──────────────────────────┐     ADX > 30 ────► Prioritas Indikator Trend (MA, MACD)
+ │   Adaptive Weighting     ├────► ADX < 20 ────► Prioritas Indikator Momentum (RSI, Stoch, BB)
+ │ (Dynamic ADX Adjustment) │     ADX 20-30 ───► Balanced Weight
+ └───────────┬──────────────┘
+             │
+             ▼
+ ┌──────────────────────────┐
+ │ Multi-Timeframe Check    │ (Konfirmasi 5-Menit vs 1-Menit)
+ └───────────┬──────────────┘
+             │
+             ▼
+ ┌──────────────────────────┐
+ │ Target Confidence Score  │ ────► Signal: BELI / JUAL / TUNGGU
+ └──────────────────────────┘
 ```
 
-### 2. Deploy ke Vercel
+### 1. Indikator yang Dianalisis (13 Faktor)
+* **Trend & Moving Averages**: SMA Cross, EMA Cross, Bollinger Position, Support/Resistance level.
+* **Oscillator & Momentum**: RSI, MACD, Stochastic, Momentum, Williams %R, CCI.
+* **Volume & Price Action**: Volume Ratio, OBV Trend, Pattern Recognition (Hammer, Engulfing, Doji, Three Soldiers/Crows).
 
-1. Buka https://vercel.com/new
-2. Import repository GitHub Anda
-3. Framework Preset: **Next.js** (auto-detected)
-4. Klik **Deploy**
-5. Tunggu 1-2 menit, selesai!
+### 2. Penyesuaian Bobot Adaptif (Adaptive Weighting)
+AI menyesuaikan bobot indikator berdasarkan kondisi volatilitas pasar via **ADX (Average Directional Index)**:
+* **Trending (ADX > 30)**: Memprioritaskan indikator pengikut tren seperti Moving Average, EMA, dan MACD.
+* **Sideways (ADX < 20)**: Memprioritaskan indikator osilator seperti RSI, Stochastic, dan Bollinger Bands.
+* **Netral (ADX 20-30)**: Menggunakan alokasi bobot seimbang pada seluruh indikator.
 
-Tidak perlu set environment variable apapun. Semua dependencies ada di `package.json`.
+### 3. Output Prediksi
+* **Direction**: `NAIK`, `TURUN`, atau `NETRAL`
+* **Signal**: `BELI`, `JUAL`, atau `TUNGGU`
+* **Metrics**: Persentase *Confidence Level*, total skor, dan breakdown detail dari 13 indikator.
 
-### 3. Test PWA
+---
 
-Setelah deploy, buka URL Vercel Anda di Chrome/Edge:
-- Buka di Android → akan muncul banner "Pasang TradeVision"
-- Buka di desktop → klik icon install di address bar
-- Setelah install: badge "App Installed" muncul di pojok kanan atas
+## 📡 Sumber & Konsumsi Data
 
-## Development
+| Pasangan Mata Uang / Komoditas | Sumber Data | Mekanisme Data |
+| :--- | :--- | :--- |
+| **XAU/USD (Emas Global)** | Yahoo Finance API (`query1.finance.yahoo.com`) | Historical & Polling Data |
+| **USD/IDR (Kurs)** | Fawaz Ahmed Currency API (`cdn.jsdelivr.net`) | Real-Time Spot Data |
+| **Emas IDR (Lokal)** | Kalkulasi XAU/USD × USD/IDR | Derived Real-Time Data |
+
+> **Ketahanan Sistem**: Aplikasi dilengkapi fitur *caching system* 30 detik untuk pencegahan *rate-limiting* API serta mekanisme *fallback simulation* jika server penyedia data mengalami kegagalan/keterlambatan koneksi.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Core Framework**: Next.js 16 (App Router)
+* **Language**: TypeScript 5
+* **Styling**: Tailwind CSS v4 & shadcn/ui
+* **Data Visualization**: `lightweight-charts v5` (by TradingView)
+* **Icons**: Lucide React
+* **PWA Integration**: Custom Service Worker + Web App Manifest
+
+---
+
+## 🚀 Panduan Jalankan Lokal (Development)
+
+Prasyarat: Dipastikan telah menginstal **Node.js 18+** atau **Bun**.
 
 ```bash
+# 1. Clone repository
+git clone https://github.com/USERNAME/TRADEVISION.git
+cd TRADEVISION
+
+# 2. Instal dependensi
 bun install
-bun run dev      # http://localhost:3000
-bun run lint     # check code quality
-bun run build    # production build
+# atau
+npm install
+
+# 3. Jalankan server lokal
+bun run dev
+# atau
+npm run dev
 ```
 
-## Stack
+Buka `http://localhost:3000` pada browser Anda.
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS 4 + shadcn/ui
-- **Chart**: lightweight-charts v5 (TradingView)
-- **Icons**: lucide-react
-- **PWA**: manifest.json + service worker + custom install prompt
+---
 
-## License
+## 🌐 Deploy ke Vercel
 
-MIT — bebas pakai untuk keperluan apapun.
+Aplikasi ini dirancang *zero-config*, sehingga tidak memerlukan *Environment Variables* tambahan saat rilis.
 
-## Disclaimer
+1. Push repositori ini ke akun GitHub Anda.
+2. Buka dashboard [Vercel](https://vercel.com/new) dan lakukan import repositori.
+3. Pilih framework **Next.js**.
+4. Klik tombol **Deploy**.
 
-Konten untuk tujuan edukasi & analisis, bukan saran investasi. Trading memiliki risiko kerugian.
+---
+
+## ⚠️ Disclaimer
+
+Aplikasi ini dibuat **hanya untuk tujuan edukasi, eksperimen teknis, dan simulasi analisis semata**, bukan merupakan saran atau rekomendasi investasi finansial (*Financial Advice*). Trading instrumen keuangan membawa risiko finansial tinggi. Penulis tidak bertanggung jawab atas kerugian finansial yang terjadi akibat penggunaan aplikasi ini.
+
+---
+
+## 📄 Lisensi
+
+Didistribusikan di bawah Lisensi **MIT**. Bebas digunakan, dimodifikasi, dan didistribusikan kembali.
